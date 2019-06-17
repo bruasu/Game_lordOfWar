@@ -1,31 +1,21 @@
-const socket = io('http://localhost:3000');
+const socket = io('http://localhost:3030');
 
 //DOM Elements
-let message = document.getElementById('message');
-let username = document.getElementById('username');
+let name = document.getElementById('name');
 let btn = document.getElementById('send');
-let output = document.getElementById('output');
-let actions = document.getElementById('actions');
 
 btn.addEventListener('click', function(){
-    var datos = {"username":username.value,"message":message.value};
+    var datos = {"name": name.value};
 
-    socket.emit('chat:message',datos);
+    socket.emit('chat:loginUser',datos);
 
 });
 
 socket.on('chat:server', (data)=>{
-    console.log(data);
-    output.innerHTML += `<p>
-        <strong>${data.username}</strong>: ${data.message}
-    </p>`;
+    console.log(data);    
 });
 
-message.addEventListener('keypress', function(){
-    socket.emit('chat:typing', username.value);
-});
+/* socket.on('chat:typing', (data)=>{
 
-socket.on('chat:typing', (data)=>{
-    actions.innerHTML = '';
-    actions.innerHTML = `<p><em>${data} is typing a message</em></p>`
 });
+ */

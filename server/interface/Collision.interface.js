@@ -28,3 +28,5 @@ class Collision{
         }
     }
 }
+
+module.exports = Collision;

@@ -1,30 +1,35 @@
-const path = require("path");
 const express = require("express");
+const morgan = require('morgan');
+
 const app = express();
+const appSocket = express();
+
+const main = require("./game/main.js");
 
 //setings
+appSocket.set('port', process.env.PORT || 3030);
 app.set('port', process.env.PORT || 3000);
 
-//static files
-// app.use(express.static(path.join(__dirname,'public')));
+//middlewares
+app.use(morgan('dev'));
+app.use(express.json());
+app.use(express.urlencoded({extended: false}));
 
 // Start the server
-const server = app.listen(app.get('port'),()=>{
+const serverSocket = appSocket.listen(appSocket.get('port'),()=>{
+    console.log('server Socket on port', appSocket.get('port'));
+});
+
+app.listen(app.get('port'), () =>{
     console.log('server on port', app.get('port'));
 });
 
-const SocketIO = require('socket.io');
-const io = SocketIO(server);
-
 // websockets
-io.on('connection',(socket) => {
-    console.log('new conection', socket.id);
+const SocketIO = require('socket.io');
+const io = SocketIO(serverSocket);
+main.socket(io);
 
-    socket.on('chat:message', (data)=>{
-        io.sockets.emit('chat:server',data);
-    });
-    //envio los datos a todos menos a mi mismo
-    socket.on('chat:typing', (data)=>{
-        socket.broadcast.emit('chat:typing',data);
-    });
-});
+//routes
+
+const LoginRouter = require("./routes/login.routes");
+LoginRouter.start(app, main);

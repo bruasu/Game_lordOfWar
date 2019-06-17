@@ -10,3 +10,5 @@ class Object{
         this.collision;
     }
 }
+
+module.exports = Object;

@@ -5,3 +5,5 @@ class Player{
         this.objects = new Array();
     }
 }
+
+module.exports = Player;
