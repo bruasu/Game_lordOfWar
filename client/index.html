@@ -4,21 +4,20 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Socket</title>
-    <link rel="stylesheet" href="main.css">
+    <title>Lord of War</title>
+    <link rel="stylesheet" href="css/main.css">
 </head>
 <body>
-    <div id="chat-container">
-        <div id="chat-window">
-            <div id="output"></div>
-            <div id="actions"></div>
+    <div class="container">
+        <div>
+            <h1 class='text-center'>Lord of War</h1>
         </div>
-        <input type="text" id="username" placeholder="User Name">
-        <input type="text" id="message" placeholder="Message">
-        <button id="send" onclick="location.href='src/com.asubrothers.Game/index.html'">Send</button>
+        <div id="chat_container">
+            <input type="text" id="username" placeholder="ingrese su nombre de usuario">
+            <button id="send">Conectarse</button>
+            <div class='alert hidden' id="alertUserExists"></div>
+        </div>
     </div>
-    
-    <script src="socket.io.js"></script>
-    <script src="io.js"></script>
+    <script src="js/main.js"></script>
 </body>
 </html>

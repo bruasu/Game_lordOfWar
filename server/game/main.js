@@ -7,7 +7,7 @@ const main = {
         io.on('connection',(socket) => {
             console.log('new conection', socket.id);
     
-            socket.on('chat:loginUser', (data)=>{
+            socket.on('chat:message', (data)=>{
                 io.sockets.emit('chat:server',data);
                 // socket.broadcast.emit('chat:server',data); // send all but not this
                 console.log(data);
@@ -19,16 +19,19 @@ const main = {
         });
     },
     checkUser: (name) => {
+        let result = false;
 
         if(main.users.length > 0){
             for(let i = 0; i < main.users.length; i++){
                 if(name == main.users[i]){
-                    return false;
+                    result = false;
+                    break;
                 }else{
-                    return true;
+                    result = true;
                 }
             }
-        }else{
+            return result;
+        }else{            
             return true;
         }
     }
