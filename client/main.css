@@ -1,7 +1,9 @@
 @import url('https://fonts.googleapis.com/css?family=Nunito');
 body{
     font-family: 'Nunito', sans-serif;
+    
 }
+
 #chat-container{
     max-width: 600px;
     margin: 30px auto;

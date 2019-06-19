@@ -9,11 +9,15 @@ var gameDates = {
 	game : new Game(dimension.width,dimension.height),
 	canvas : document.getElementById("canvas"),
 	mouseX: dimension.width/2,
-	mouseY: dimension.height/2
+	mouseY: dimension.height/2,
+	mouseState: "up"
 }
 document.addEventListener("mousemove",function(e){
 	gameDates.mouseX=e.pageX;
 	gameDates.mouseY=e.pageY;
+});
+document.addEventListener("click",function(e){
+	gameDates.mouseState = "down";
 });
 var runnable = {
 	thread: null,
@@ -39,6 +43,9 @@ var runnable = {
 		canvas.width = dimension.width;
 		canvas.height = dimension.height;
 		gameDates.game.update(dimension.width,dimension.height);
+		if(gameDates.mouseState=="down"){
+			gameDates.mouseState="up";
+		}
 		keyboard.restart();
 		
 	},

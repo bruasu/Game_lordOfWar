@@ -1,3 +1,4 @@
+//http://gaurav.munjal.us/Universal-LPC-Spritesheet-Character-Generator/#
 function readTextFile(file,callback){	
 	var allText = null;
 	var rawFile = new XMLHttpRequest();
@@ -19,7 +20,17 @@ var data = {
 	mapTxt : null,
 	mapWidth : null,
 	mapHeight : null,
-	img : new Image()
+	img : new Image(),
+	img_icon1 : new Image(),
+	img_charrua_lancer : new Image(),
+	img_charrua_archer : new Image(),
+	img_charrua_archer2 : new Image(),
+	img_guarani_lancer : new Image(),
+	img_guarani_archer : new Image(),
+	img_guarani_archer2 : new Image(),
+	img_mapuche_lancer : new Image(),
+	img_mapuche_archer : new Image(),
+	img_mapuche_archer2: new Image(),
 }
 class Map{
 	constructor(screenWidth,screenHeight){
@@ -29,8 +40,14 @@ class Map{
 		this.mapY = 0;
 		this.blockSize = Map.getBlockSize();
 		this.allLoaded = false;
+		this.const = new Construction(100,100,2,data.img,this.mapX,this.mapY);
+		this.point = new ConstructionPoint(200,200,0,data.img_icon1,this.mapX,this.mapY);
+		this.chara = new Character(300,300,this.mapX,this.mapY,0,"charrua",0);
 		readTextFile("../com.asubrothers.Maps/prototype1_2players.txt",function(txt){
+		
 			data.img.src="../../res/tilesheet1.png";
+			data.img_icon1.src="../../res/icon1.png";
+			data.img_charrua_lancer.src="../../res/characters/charrua/charrua_archer.png";
 			data.mapTxt = txt;
 		});		
 		this.generate();
@@ -86,12 +103,9 @@ class Map{
 				}
 			}
 		}
-		//console.log(this.trees);
-		//this.moveMap(-230,-400);
 	}
 	render(ctx){
 		if(this.allLoaded){
-			//console.log(this.tiles[0].length);
 			for(let x = 0;x<this.tiles.length;x++){
 				for(let y = 0;y<this.tiles[0].length;y++){
 					this.tiles[x][y].render(ctx,this.mapX,this.mapY);
@@ -104,6 +118,9 @@ class Map{
 			this.trees.forEach(function(value,index,arr){
 				arr[index].render(ctx);
 			});
+			this.const.render(ctx);
+			this.point.render(ctx);
+			this.chara.render(ctx);
 		}
 	}
 	moveMap(movx,movy){
@@ -111,10 +128,16 @@ class Map{
 		if(this.mapX+movx*speed<=0){
 			if(this.mapX+movx*speed>=-(data.mapWidth-this.screenWidth)){
 				this.mapX+=movx*speed;
+			}else{
+				if(movx>0)
+				this.mapX+=movx*speed;
 			}
 		}
 		if(this.mapY+movy*speed<=0){
 			if(this.mapY+movy*speed>=-(data.mapHeight-this.screenHeight)){
+				this.mapY+=movy*speed;
+			}else{
+				if(movy>0)
 				this.mapY+=movy*speed;
 			}
 		}
@@ -142,6 +165,10 @@ class Map{
 				arr[index].update(mapX,mapY);
 				
 			});
+			this.const.update(mapX,mapY);
+			this.point.update(mapX,mapY);
+			this.chara.update(mapX,mapY);
+			
 		}
 	}
 	
