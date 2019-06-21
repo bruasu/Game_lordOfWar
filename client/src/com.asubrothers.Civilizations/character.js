@@ -2,12 +2,12 @@ CharacterImgsPath = [
     "../../res/characters/charrua/charrua_lancer.png",
     "../../res/characters/charrua/charrua_archer.png",
     "../../res/characters/charrua/charrua_archer2.png",
-    "../../res/characters/charrua/guarani_lancer.png",
-    "../../res/characters/charrua/guarani_archer.png",
-    "../../res/characters/charrua/guarani_archer2.png",
-    "../../res/characters/charrua/mapuche_lancer.png",
-    "../../res/characters/charrua/mapuche_archer.png",
-    "../../res/characters/charrua/mapuche_archer2.png",
+    "../../res/characters/guarani/guarani_lancer.png",
+    "../../res/characters/guarani/guarani_archer.png",
+    "../../res/characters/guarani/guarani_archer2.png",
+    "../../res/characters/mapuche/mapuche_lancer.png",
+    "../../res/characters/mapuche/mapuche_archer.png",
+    "../../res/characters/mapuche/mapuche_archer2.png",
 ];
 CharacterAnimations = {
     spellcast: [],
@@ -37,15 +37,17 @@ class Character{
     constructor(x,y,mapX,mapY,id,civilization,tipe){
         this.x = x;
         this.y = y;
+        this.width = 64;
+        this.height = 64;
         this.mapX = mapX;
         this.mapY = mapY;
         this.id=id;
         this.civilization=civilization;
         this.tipe=tipe;
         this.img = new Image();
-        this.img.src = CharacterImgsPath[2];
+        this.img.src = CharacterImgsPath[0];
         this.state = "still";
-        this.isSelected = true;
+        this.isSelected = false;
         this.animationTime = 0;
         this.animationTile = 0;
         this.goTo = [null,null];
@@ -56,21 +58,25 @@ class Character{
         
         if(this.state == "walking"){
             ctx.drawImage(this.img,
-                this.animationTile*64,CharacterAnimations.shoot[this.direction][0],64,64,
-                this.x+this.mapX,this.y+this.mapY,64,64); 
+                this.animationTile*64,CharacterAnimations.walk[this.direction][0],64,64,
+                this.x+this.mapX,this.y+this.mapY,this.width,this.height); 
         }else{//still
             ctx.drawImage(this.img,
-                64,CharacterAnimations.walk[this.direction][0],64,64,
-                this.x+this.mapX,this.y+this.mapY,64,64);
+                0,CharacterAnimations.walk[this.direction][0],64,64,
+                this.x+this.mapX,this.y+this.mapY,this.width,this.height);
         }
+    }
+    moveTo(x,y){
+        this.state = "walking";
+        this.goTo = [x,y];                
     }
     update(mapX,mapY){
         this.mapX = mapX;
         this.mapY = mapY;
         if(this.isSelected){
-            if(gameDates.mouseState=="down"){
-                this.state = "walking";
-                this.goTo = [gameDates.mouseX-this.mapX,gameDates.mouseY-this.mapY];                
+            if(gameDates.mouseClickRight){
+               this.moveTo(gameDates.mouseX-this.mapX-this.width*0.6,
+                gameDates.mouseY-this.mapY-this.height*0.7);
             }
         }
         if(this.state == "walking"){    
@@ -103,6 +109,8 @@ class Character{
             }
             if(parseInt(deltaX)<=1){
                 if(parseInt(deltaY)<=1){
+                    this.animationTime=0;
+                    this.animationTile=0;
                     this.state="still";
                 }
             }

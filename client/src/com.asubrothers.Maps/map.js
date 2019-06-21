@@ -20,6 +20,9 @@ var data = {
 	mapTxt : null,
 	mapWidth : null,
 	mapHeight : null,
+	mapPointClicked:[null,null],
+	regionSelected:[null,null,null,null],
+	money : 500,
 	img : new Image(),
 	img_icon1 : new Image(),
 	img_charrua_lancer : new Image(),
@@ -42,12 +45,15 @@ class Map{
 		this.allLoaded = false;
 		this.const = new Construction(100,100,2,data.img,this.mapX,this.mapY);
 		this.point = new ConstructionPoint(200,200,0,data.img_icon1,this.mapX,this.mapY);
-		this.chara = new Character(300,300,this.mapX,this.mapY,0,"charrua",0);
+		//this.chara = new Character(300,300,this.mapX,this.mapY,0,"charrua",0);
+		this.characters = [new Character(300,300,this.mapX,this.mapY,0,"charrua",0)];
+
 		readTextFile("../com.asubrothers.Maps/prototype1_2players.txt",function(txt){
 		
 			data.img.src="../../res/tilesheet1.png";
 			data.img_icon1.src="../../res/icon1.png";
-			data.img_charrua_lancer.src="../../res/characters/charrua/charrua_archer.png";
+			data.img_charrua_lancer.src="../../res/characters/charrua/charrua_lancer.png";
+			data.img_charrua_archer2.src="../../res/characters/charrua/charrua_archer2.png";
 			data.mapTxt = txt;
 		});		
 		this.generate();
@@ -120,7 +126,11 @@ class Map{
 			});
 			this.const.render(ctx);
 			this.point.render(ctx);
-			this.chara.render(ctx);
+			//this.chara.render(ctx);
+			for(let i=0;i<this.characters.length;i++){
+				this.characters[i].render(ctx);
+			}
+			this.point.render2(ctx);
 		}
 	}
 	moveMap(movx,movy){
@@ -146,6 +156,16 @@ class Map{
 		this.screenWidth = screenWidth;
 		this.screenHeight = screenHeight;
 		if(this.allLoaded){
+			if(gameDates.mouseClick){
+				data.mapPointClicked=[gameDates.mouseX-this.mapX,gameDates.mouseY-this.mapY];
+			}
+			if(gameDates.mouseDrag){
+				data.regionSelected=[data.mapPointClicked[0],data.mapPointClicked[1],gameDates.mouseX-this.mapX-data.mapPointClicked[0],gameDates.mouseY-this.mapY-data.mapPointClicked[1]];
+			}
+			if(!gameDates.mousePressed){
+				data.regionSelected=[null,null,null,null];
+			}
+			
 			if(gameDates.mouseX<screenWidth*0.1){
 				this.moveMap(1,0);
 			}
@@ -167,7 +187,24 @@ class Map{
 			});
 			this.const.update(mapX,mapY);
 			this.point.update(mapX,mapY);
-			this.chara.update(mapX,mapY);
+			//this.chara.update(mapX,mapY);
+			let clickedInSomeCharacter = false;
+			for(let i=0;i<this.characters.length;i++){
+				if(gameDates.mouseClick){
+					if(gameDates.mouseX-mapX>this.characters[i].x&&gameDates.mouseX<this.characters[i].x+this.characters[i].width){
+						if(gameDates.mouseY-mapY>this.characters[i].y&&gameDates.mouseY<this.characters[i].y+this.characters[i].height){
+							this.characters[i].isSelected=true;
+							clickedInSomeCharacter=true;
+						}
+					}
+				}
+				this.characters[i].update(mapX,mapY);
+			}
+			if(!clickedInSomeCharacter&&gameDates.mouseClick){
+				for(let i=0;i<this.characters.length;i++){
+					this.characters[i].isSelected=false;
+				}
+			}
 			
 		}
 	}
