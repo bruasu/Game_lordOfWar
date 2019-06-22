@@ -1,8 +1,8 @@
 class Game{
-	constructor(width,height){
+	constructor(width,height,player_username,player_id){
 		this.screenWidth = width;
 		this.screenHeight = height;
-		this.map = new Map(width,height);
+		this.map = new Map(width,height,player_username,player_id);
 		
 	}
 	render(ctx){

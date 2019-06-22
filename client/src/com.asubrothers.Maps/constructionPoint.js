@@ -1,10 +1,11 @@
 Constructions = {
-   charrua_center : new Construction(null,null,null,null,null,null,"charrua center"),
-   guarani_center : new Construction(null,null,null,null,null,null,"guarani center")
+   charrua_center : new Construction(null,null,0,null,null,null,"charrua center","charrua"),
+   guarani_center : new Construction(null,null,0,null,null,null,"guarani center","guarani"),
+   mapuche_center : new Construction(null,null,0,null,null,null,"mapuche center","mapuche")
 }
 Actions = {
-    add_soldier : new Action("Lancero $50"),
-    add_soldier2 : new Action("Arquero $50")
+    add_soldier : new Action("Lancero $50",50,0),
+    add_soldier2 : new Action("Arquero $50",50,1)
 }
 class ConstructionPoint{
     constructor(x,y,tipe,img,mapX,mapY){
@@ -17,7 +18,7 @@ class ConstructionPoint{
         this.mapX=mapX;
         this.mapY=mapY;
         this.isOpen=false;
-        this.items = [Constructions.charrua_center,Constructions.guarani_center];
+        this.items = [Constructions.charrua_center,Constructions.guarani_center,Constructions.mapuche_center];
         this.actionItems = [Actions.add_soldier,Actions.add_soldier2];
         this.animationRadius = 0.1;
         this.construction = null;
@@ -48,6 +49,7 @@ class ConstructionPoint{
                     ctx.arc(ACTIONITEMS[i][0],ACTIONITEMS[i][1],ACTIONITEMS[i][2]*this.animationRadius,0,Math.PI*2);
                     ctx.fill();
                     //draw item name
+                    ctx.beginPath();
                     if(this.pointCircle(gameDates.mouseX,gameDates.mouseY,ACTIONITEMS[i][0],ACTIONITEMS[i][1],ACTIONITEMS[i][2])){
                         ctx.fillStyle = "black";
                         ctx.fillRect(ACTIONITEMS[i][0]-this.actionItems[i].name.length*2-3,ACTIONITEMS[i][1]-this.width*0.55-10,this.actionItems[i].name.length*5.55,13);
@@ -60,15 +62,35 @@ class ConstructionPoint{
                     if(this.actionItems[i].name==Actions.add_soldier.name){
                         imgCooActionItemIndex = 0;
                         img=data.img_charrua_lancer;
+                        if(this.construction.civilization=="charrua"){
+                            img=data.img_charrua_lancer;
+                        }
+                        if(this.construction.civilization=="guarani"){
+                            img=data.img_guarani_lancer;
+                        }
+                        if(this.construction.civilization=="mapuche"){
+                            img=data.img_mapuche_lancer;
+                        }
+                        
                     }
                     if(this.actionItems[i].name==Actions.add_soldier2.name){
                         imgCooActionItemIndex = 1;
                         img=data.img_charrua_archer2;
+                        if(this.construction.civilization=="charrua"){
+                            img=data.img_charrua_archer2;
+                        }
+                        if(this.construction.civilization=="guarani"){
+                            img=data.img_guarani_archer2;
+                        }
+                        if(this.construction.civilization=="mapuche"){
+                            img=data.img_mapuche_archer2;
+                        }
                     }
                     let iconX = ACTIONITEMS[i][0]-ACTIONITEMS[i][2]*0.75;
                     let iconY = ACTIONITEMS[i][1]-ACTIONITEMS[i][2]*0.9;
                     let iconWidth = ACTIONITEMS[i][2]*1.5;
                     let iconHeight = ACTIONITEMS[i][2]*1.5;
+                    //console.log(img)
                     ctx.drawImage(img,imgCooActionItems[imgCooActionItemIndex][0],imgCooActionItems[imgCooActionItemIndex][1],imgCooActionItems[imgCooActionItemIndex][2],imgCooActionItems[imgCooActionItemIndex][3],iconX+(iconWidth/2)*(1-this.animationRadius),iconY+(iconHeight/2)*(1-this.animationRadius),iconWidth*this.animationRadius,iconHeight*this.animationRadius);
                 }
             }else{
@@ -82,9 +104,10 @@ class ConstructionPoint{
                     ctx.arc(ITEMS[i][0],ITEMS[i][1],ITEMS[i][2]*this.animationRadius,0,Math.PI*2);
                     ctx.fill();
                     //draw item name
+                    ctx.beginPath();
                     if(this.pointCircle(gameDates.mouseX,gameDates.mouseY,ITEMS[i][0],ITEMS[i][1],ITEMS[i][2])){
                         ctx.fillStyle = "black";
-                        ctx.fillRect(ITEMS[i][0]-this.items[i].name.length*2-3,ITEMS[i][1]-this.width*0.55-10,this.items[i].name.length*5,13);
+                        ctx.fillRect(ITEMS[i][0]-this.items[i].name.length*2-3,ITEMS[i][1]-this.width*0.55-10,this.items[i].name.length*5.6,13);
                         ctx.fillStyle = "white";
                         ctx.fillText(this.items[i].name,ITEMS[i][0]-this.items[i].name.length*2,ITEMS[i][1]-this.width*0.55);
                     }
@@ -95,6 +118,9 @@ class ConstructionPoint{
                     }
                     if(this.items[i].name==Constructions.guarani_center.name){
                         imgCooConstructionsIndex = 1;
+                    }
+                    if(this.items[i].name==Constructions.mapuche_center.name){
+                        imgCooConstructionsIndex = 2;
                     }
                     let iconX = ITEMS[i][0]-ITEMS[i][2]*0.65;
                     let iconY = ITEMS[i][1]-ITEMS[i][2]*0.70;
@@ -158,7 +184,17 @@ class ConstructionPoint{
         }
         if(this.isOpen){
             if(this.construction){
-
+                let ACTIONITEMS = this.getItemsDimensions(this.actionItems);
+                for(let i=0;i<ACTIONITEMS.length;i++){
+                    if(gameDates.mouseState=="down"){
+                        if(this.pointCircle(gameDates.mouseX,gameDates.mouseY,ACTIONITEMS[i][0],ACTIONITEMS[i][1],ACTIONITEMS[i][2])){
+                            //detecta cuando toca en un action item
+                            if(this.actionItems[i].price<=data.money){
+                                gameDates.game.map.addCharacter(this.x,this.y,this.construction.civilization,this.actionItems[i].tipe);
+                            }
+                        }
+                    }
+                }
             }else{
                 let ITEMS = this.getItemsDimensions(this.items);
                 for(let i=0;i<ITEMS.length;i++){
@@ -166,7 +202,7 @@ class ConstructionPoint{
                         if(this.pointCircle(gameDates.mouseX,gameDates.mouseY,ITEMS[i][0],ITEMS[i][1],ITEMS[i][2])){
                             //detecta cuando toca en un item
                             if(data.money>this.items[i].price){
-                                this.items[i]=new Construction(this.x,this.y+10,i,data.img,this.mapX,this.mapY,this.items[i].name);
+                                this.items[i]=new Construction(this.x,this.y+10,i,data.img,this.mapX,this.mapY,this.items[i].name,this.items[i].civilization);
                                 this.construction = this.items[i];
                                 this.isOpen = false;
                             }

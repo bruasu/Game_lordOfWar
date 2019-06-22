@@ -16,6 +16,16 @@ function readTextFile(file,callback){
 	rawFile.send(null);
 	callback(allText);
 }
+Math.getDistance = function( x1, y1, x2, y2 ) {
+	
+	var 	xs = x2 - x1,
+		ys = y2 - y1;		
+	
+	xs *= xs;
+	ys *= ys;
+	 
+	return Math.sqrt( xs + ys );
+};
 var data = {
 	mapTxt : null,
 	mapWidth : null,
@@ -35,8 +45,26 @@ var data = {
 	img_mapuche_archer : new Image(),
 	img_mapuche_archer2: new Image(),
 }
+function collisionRectRect(rect1,rect2){
+	if((rect1.x>rect2.x&&rect1.x<rect2.x+rect2.width)||(rect1.x+rect1.width>rect2.x&&rect1.x+rect1.width<rect2.x+rect2.width)||(rect1.x+rect1.width>rect2.x&&rect1.x+rect1.width<rect2.x+rect1.width)||(rect1.x>rect2.x&&rect1.x+rect1.width<rect2.x)){
+		if((rect1.y>rect2.y&&rect1.y<rect2.y+rect2.height)||(rect1.y+rect1.height>rect2.y&&rect1.y+rect1.height<rect2.y+rect2.height)||(rect1.y+rect1.height>rect2.y&&rect1.y+rect1.height<rect2.y+rect1.height)||(rect1.y>rect2.y&&rect1.y+rect1.height<rect2.y)){
+			return true;
+		}
+	}
+	return false;
+}
+class Rect{
+	constructor(x,y,width,height){
+		this.x=x;
+		this.y=y;
+		this.width=width;
+		this.height=height;
+	}
+}
 class Map{
-	constructor(screenWidth,screenHeight){
+	constructor(screenWidth,screenHeight,player_username,player_id){
+		this.player_username=player_username;
+	    this.player_id=player_id;
 		this.screenWidth = screenWidth;
 		this.screenHeight = screenHeight;
 		this.mapX = 0;
@@ -46,14 +74,28 @@ class Map{
 		this.const = new Construction(100,100,2,data.img,this.mapX,this.mapY);
 		this.point = new ConstructionPoint(200,200,0,data.img_icon1,this.mapX,this.mapY);
 		//this.chara = new Character(300,300,this.mapX,this.mapY,0,"charrua",0);
-		this.characters = [new Character(300,300,this.mapX,this.mapY,0,"charrua",0)];
-
+		console.log(gameDates)
+		this.characters = [
+		new Character(300,300,this.mapX,this.mapY,0,"charrua",0,this.player_username,this.player_id),
+		new Character(350,300,this.mapX,this.mapY,0,"charrua",0,this.player_username,this.player_id),
+		new Character(400,300,this.mapX,this.mapY,0,"charrua",0,this.player_username,this.player_id),
+		new Character(450,300,this.mapX,this.mapY,0,"charrua",0,this.player_username,this.player_id),
+		new Character(500,300,this.mapX,this.mapY,0,"charrua",0,this.player_username,this.player_id),
+		new Character(550,300,this.mapX,this.mapY,0,"charrua",0,this.player_username,this.player_id)];
+		this.angleCorrection = 1;
 		readTextFile("../com.asubrothers.Maps/prototype1_2players.txt",function(txt){
 		
 			data.img.src="../../res/tilesheet1.png";
 			data.img_icon1.src="../../res/icon1.png";
 			data.img_charrua_lancer.src="../../res/characters/charrua/charrua_lancer.png";
+			data.img_charrua_archer.src="../../res/characters/charrua/charrua_archer.png";
 			data.img_charrua_archer2.src="../../res/characters/charrua/charrua_archer2.png";
+			data.img_guarani_lancer.src="../../res/characters/guarani/guarani_lancer.png";
+			data.img_guarani_archer.src="../../res/characters/guarani/guarani_archer.png";
+			data.img_guarani_archer2.src="../../res/characters/guarani/guarani_archer2.png";
+			data.img_mapuche_lancer.src="../../res/characters/mapuche/mapuche_lancer.png";
+			data.img_mapuche_archer.src="../../res/characters/mapuche/mapuche_archer.png";
+			data.img_mapuche_archer2.src="../../res/characters/mapuche/mapuche_archer2.png";
 			data.mapTxt = txt;
 		});		
 		this.generate();
@@ -110,6 +152,13 @@ class Map{
 			}
 		}
 	}
+	addCharacter(x,y,civilization,tipe){
+
+		this.characters.push(new Character(x,y,this.mapX,this.mapY,0,civilization,tipe,this.player_username,this.player_id));
+		let i = this.characters.length-1;
+		this.characters[i].moveTo(this.characters[i].x,this.characters[i].y+Character.getWidth()/2);
+		this.angleCorrection = -1;
+	}
 	render(ctx){
 		if(this.allLoaded){
 			for(let x = 0;x<this.tiles.length;x++){
@@ -128,10 +177,26 @@ class Map{
 			this.point.render(ctx);
 			//this.chara.render(ctx);
 			for(let i=0;i<this.characters.length;i++){
+				this.characters[i].renderSelection(ctx);
+			}
+			for(let i=0;i<this.characters.length;i++){
 				this.characters[i].render(ctx);
 			}
 			this.point.render2(ctx);
 		}
+		//draw mouse selection
+		if(data.regionSelected[0]!=null){
+			ctx.lineWidth=2;
+			ctx.strokeStyle="#CD5C5C";
+			ctx.rect(data.regionSelected[0]+this.mapX-2,data.regionSelected[1]+this.mapY-2,data.regionSelected[2]+4,data.regionSelected[3]+4);
+			ctx.stroke();
+			ctx.beginPath();
+			ctx.lineWidth=2;
+			ctx.strokeStyle="#F08080";
+			ctx.rect(data.regionSelected[0]+this.mapX,data.regionSelected[1]+this.mapY,data.regionSelected[2],data.regionSelected[3]);
+			ctx.stroke();
+		}
+		
 	}
 	moveMap(movx,movy){
 		let speed = 3;
@@ -156,16 +221,17 @@ class Map{
 		this.screenWidth = screenWidth;
 		this.screenHeight = screenHeight;
 		if(this.allLoaded){
+			//mouse region
 			if(gameDates.mouseClick){
 				data.mapPointClicked=[gameDates.mouseX-this.mapX,gameDates.mouseY-this.mapY];
 			}
 			if(gameDates.mouseDrag){
-				data.regionSelected=[data.mapPointClicked[0],data.mapPointClicked[1],gameDates.mouseX-this.mapX-data.mapPointClicked[0],gameDates.mouseY-this.mapY-data.mapPointClicked[1]];
+				data.regionSelected=[data.mapPointClicked[0],data.mapPointClicked[1],gameDates.mouseX-this.mapX-data.mapPointClicked[0]-8,gameDates.mouseY-this.mapY-data.mapPointClicked[1]-8];
 			}
 			if(!gameDates.mousePressed){
 				data.regionSelected=[null,null,null,null];
 			}
-			
+			//map movement
 			if(gameDates.mouseX<screenWidth*0.1){
 				this.moveMap(1,0);
 			}
@@ -178,7 +244,6 @@ class Map{
 			if(gameDates.mouseY>screenHeight-screenHeight*0.1){
 				this.moveMap(0,-1);
 			}
-			
 			let mapX=this.mapX;
 			let mapY=this.mapY;
 			this.trees.forEach(function(value,index,arr){
@@ -187,26 +252,107 @@ class Map{
 			});
 			this.const.update(mapX,mapY);
 			this.point.update(mapX,mapY);
-			//this.chara.update(mapX,mapY);
+			//mouse region and click select characters
 			let clickedInSomeCharacter = false;
 			for(let i=0;i<this.characters.length;i++){
-				if(gameDates.mouseClick){
-					if(gameDates.mouseX-mapX>this.characters[i].x&&gameDates.mouseX<this.characters[i].x+this.characters[i].width){
-						if(gameDates.mouseY-mapY>this.characters[i].y&&gameDates.mouseY<this.characters[i].y+this.characters[i].height){
+				if(this.characters[i].player_username==gameDates.player_username&&this.characters[i].player_id==gameDates.player_id){
+					if(gameDates.mouseClick){
+						if(gameDates.mouseX-mapX>this.characters[i].x&&gameDates.mouseX-mapX<this.characters[i].x+this.characters[i].width){
+							if(gameDates.mouseY-mapY>this.characters[i].y&&gameDates.mouseY-mapY<this.characters[i].y+this.characters[i].height){
+								for(let j=0;j<this.characters.length;j++){
+									this.characters[j].isSelected=false;
+								}
+								this.characters[i].isSelected=true;
+								clickedInSomeCharacter=true;
+							}
+						}
+					}
+					if(data.regionSelected[0]!=null){
+						if(collisionRectRect(new Rect(data.regionSelected[0],data.regionSelected[1],data.regionSelected[2],data.regionSelected[3]),new Rect(this.characters[i].x,this.characters[i].y,this.characters[i].width,this.characters[i].height))){
 							this.characters[i].isSelected=true;
 							clickedInSomeCharacter=true;
+						}else{
+							this.characters[i].isSelected=false;
 						}
 					}
 				}
+				
 				this.characters[i].update(mapX,mapY);
 			}
 			if(!clickedInSomeCharacter&&gameDates.mouseClick){
 				for(let i=0;i<this.characters.length;i++){
-					this.characters[i].isSelected=false;
+					if(this.characters[i].player_username==gameDates.player_username&&this.characters[i].player_id==gameDates.player_id){
+						this.characters[i].isSelected=false;
+					}
 				}
 			}
-			
+			//move selected character/s
+			if(gameDates.mouseClickRight){
+				let numberOfSelected = 0;
+				let k = 0;
+				for(let i=0;i<this.characters.length;i++){
+					if(this.characters[i].player_username==gameDates.player_username&&this.characters[i].player_id==gameDates.player_id){
+						if(this.characters[i].isSelected){	
+							if(k==0)k=i;
+							numberOfSelected++;
+						}
+					}
+				}
+				if(numberOfSelected==1){//if there is only one selected character
+					if(this.characters[k].player_username==gameDates.player_username&&this.characters[k].player_id==gameDates.player_id){
+						this.characters[k].moveTo(gameDates.mouseX-this.mapX-this.characters[k].width*0.6,gameDates.mouseY-this.mapY-this.characters[k].height*0.7);
+					}
+				}else if(numberOfSelected>1){//if there are many selected characters
+					for(let i=0;i<this.characters.length;i++){
+						if(this.characters[i].player_username==gameDates.player_username&&this.characters[i].player_id==gameDates.player_id&&
+							this.characters[k].player_username==gameDates.player_username&&this.characters[k].player_id==gameDates.player_id){
+							if(this.characters[i].isSelected){
+								let deltaX = Math.getDistance(gameDates.mouseX-this.mapX-this.characters[k].width*0.6,0,-this.characters[k].x+this.mapX,0);
+								let deltaY = Math.getDistance(0,gameDates.mouseY-this.mapY-this.characters[k].height*0.7,0,this.characters[k].y+this.mapY);
+								let angle = Math.atan2(deltaY,deltaX);
+								if(this.characters[i].direction==CharacterDirection.left||this.characters[k].direction==CharacterDirection.right){
+									angle+=Math.PI/2;
+								}
+								let l=k==1?1:0;
+								this.characters[i].moveTo(gameDates.mouseX-this.mapX-this.characters[k].width*0.6+(i-k+l)*Math.cos(angle)*(Character.getWidth()/2),
+									gameDates.mouseY-this.mapY-this.characters[k].height*0.7+(i-k+l)*Math.sin(angle)*(Character.getWidth()/2));
+							}
+						}
+						
+					}
+				}
+			}
+			//maintain separation between characters
+			for(let i=0;i<this.characters.length;i++){
+				if(this.characters[i].player_username==gameDates.player_username&&this.characters[i].player_id==gameDates.player_id){
+					if(this.characters[i].state=="walking"){
+						
+						for(let j=0;j<this.characters.length;j++){
+							if(this.characters[j].player_username==gameDates.player_username&&this.characters[j].player_id==gameDates.player_id){
+								if(j!=i){
+									if(this.characters[j].state=="still"){
+										if(Math.getDistance(this.characters[i].x+this.characters[i].width/2,this.characters[i].y+this.characters[i].height/2,this.characters[j].x+this.characters[j].width/2,this.characters[j].y+this.characters[j].height/2)<Character.getWidth()*0.17){
+											
+											if(this.characters[i].remainigDistance<Character.getWidth()){
+												
+												let angle = -this.characters[i].angleDirection;
+												let dis = Math.getDistance(this.characters[j].x,this.characters[j].y,this.characters[i].goTo[0],this.characters[i].goTo[1]);
+												angle= this.characters[j].movingTime>10?angle+Math.random():angle;
+												dis=dis==0?Character.getWidth():dis;
+												angle=this.angleCorrection==1?angle:-angle;
+												let x = Math.cos(angle)*dis;
+												let y = Math.sin(angle)*dis;
+												this.characters[j].moveTo(this.characters[j].x+x,this.characters[j].y+y);
+												this.angleCorrection=1;
+											}
+										}
+									}
+								}	
+							}				
+						}
+					}
+				}
+			}
 		}
 	}
-	
 }

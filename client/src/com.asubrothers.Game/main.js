@@ -6,7 +6,9 @@ document.addEventListener("DOMContentLoaded",function(){
 },false);
 
 var gameDates = {
-	game : new Game(dimension.width,dimension.height),
+	player_username:"player",
+	player_id:0,
+	game : new Game(dimension.width,dimension.height,"player",0),
 	canvas : document.getElementById("canvas"),
 	mouseX: dimension.width/2,
 	mouseY: dimension.height/2,
@@ -50,6 +52,8 @@ var runnable = {
 	fps: 0,
 	run: function(temporalRegister){
 		runnable.thread = window.requestAnimationFrame(runnable.run);
+		gameDates.player_username="player";
+		gameDates.player_id=0;
 		runnable.update(temporalRegister);
 		runnable.render(temporalRegister);
 		if(temporalRegister - runnable.lastRegister > 999){

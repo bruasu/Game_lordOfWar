@@ -5,8 +5,10 @@ imgCooActionItems = [
 
 
 class Action{
-    constructor(name){
+    constructor(name,price,tipe){
         this.name=name;
+        this.price=price;
+        this.tipe=tipe;
     }
     render(ctx){
 
