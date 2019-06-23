@@ -1,7 +1,7 @@
 class Player{
     constructor(){
         this.id;
-        this.name;
+        this.username;
         this.objects = new Array();
     }
 }

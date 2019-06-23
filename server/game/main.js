@@ -1,5 +1,6 @@
 const main = {
-    users: new Array,
+    users: new Array(),
+    rooms: new Array(),
     start: () =>{
 
     },
@@ -7,8 +8,8 @@ const main = {
         io.on('connection',(socket) => {
             console.log('new conection', socket.id);
     
-            socket.on('chat:message', (data)=>{
-                io.sockets.emit('chat:server',data);
+            socket.on('chat:server', (data)=>{
+                //io.sockets.emit('chat:server',data);
                 // socket.broadcast.emit('chat:server',data); // send all but not this
                 console.log(data);
             });

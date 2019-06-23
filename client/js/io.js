@@ -1,7 +1,7 @@
 const socket = io('http://localhost:3030');
 
 //DOM Elements
-let username = document.getElementById('username');
+//let username = document.getElementById('username');
 
 /* var datos = {"username":username.value};
 

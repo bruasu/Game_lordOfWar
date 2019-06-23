@@ -46,3 +46,6 @@ main.socket(io);
 
 const LoginRouter = require("./routes/login.routes");
 LoginRouter.start(app, main);
+
+const RoomsRouter = require('./routes/rooms.routes');
+RoomsRouter.start(app, main);

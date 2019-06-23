@@ -1,5 +1,6 @@
 const main = {
-    pathUrl: 'http://localhost:3000',
+    pathUrl: 'http://192.168.1.44:3000',
+    name: null,
     start: () => {
         main.login();
     },
@@ -8,8 +9,10 @@ const main = {
           main.ayax(main.pathUrl+'/api/login/' + username.value,(res) => {
             
             if(res.authentication == 'true'){
-
-              
+              // window.location = 'src/com.asubrothers.Game/index.html';
+              main.name = username.value; 
+              Rooms.classList.remove('d-none');   
+              login.classList.add('d-none');    
             }else{
               
               alertUserExists.classList.remove("hidden")
@@ -18,6 +21,24 @@ const main = {
             }
           },'GET');
         });
+
+        newRoom.addEventListener('click', () => {
+          main.ayax(main.pathUrl+'/api/rooms', (res) => {
+            console.log(res);
+
+            const html = '';
+
+            for(var i = 0; i < res.length; i++){
+
+            }
+
+          }, 'POST', JSON.stringify({
+            "name": main.name,
+            "nameRoom": nameRoom.value,
+            'count': countUserRoom.value
+          }));
+        });
+
       username.addEventListener('click', () => {
         username.value = '';
         alertUserExists.classList.add('hidden');
