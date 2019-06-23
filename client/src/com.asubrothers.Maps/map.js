@@ -53,6 +53,17 @@ function collisionRectRect(rect1,rect2){
 	}
 	return false;
 }
+function imagedata_to_image(imagedata) {
+    var canvas = document.createElement('canvas');
+    var ctx = canvas.getContext('2d');
+    canvas.width = imagedata.width;
+    canvas.height = imagedata.height;
+    ctx.putImageData(imagedata, 0, 0);
+
+    var image = new Image();
+    image.src = canvas.toDataURL();
+    return image;
+}
 class Rect{
 	constructor(x,y,width,height){
 		this.x=x;
@@ -73,6 +84,7 @@ class Map{
 		this.allLoaded = false;
 		this.const = new Construction(100,100,2,data.img,this.mapX,this.mapY);
 		this.point = new ConstructionPoint(200,200,0,data.img_icon1,this.mapX,this.mapY);
+		this.mapImg = new Image(500,500);
 		//this.chara = new Character(300,300,this.mapX,this.mapY,0,"charrua",0);
 		console.log(gameDates)
 		this.characters = [
@@ -123,6 +135,26 @@ class Map{
 				i++;
 			}
 		}
+		data.img.onload = () =>{
+			//draw into buffer image for get map image
+			let canvas2=document.createElement("canvas");
+			canvas2.width = data.mapWidth;
+			canvas2.height = data.mapHeight;
+			let ctx2 = canvas2.getContext("2d");
+			for(let x = 0;x<this.tiles.length;x++){
+				
+				for(let y = 0;y<this.tiles[0].length;y++){
+					
+					this.tiles[x][y].render(ctx2,this.mapX,this.mapY);
+					
+				}
+			}
+			const imageData2 = ctx2.createImageData(data.mapWidth, data.mapHeight)
+			ctx2.putImageData(imageData2,data.mapWidth,data.mapHeight);
+			this.mapImg.src = canvas2.toDataURL();
+		}
+		
+		
 		//vegetation
 		//Trees
 		//date 1: block x, date 2:block y, date 3:tipe of tree, date 4:x position correction
@@ -161,14 +193,17 @@ class Map{
 	}
 	render(ctx){
 		if(this.allLoaded){
-			for(let x = 0;x<this.tiles.length;x++){
+			/*for(let x = 0;x<this.tiles.length;x++){
 				for(let y = 0;y<this.tiles[0].length;y++){
-					this.tiles[x][y].render(ctx,this.mapX,this.mapY);
+					//this.tiles[x][y].render(ctx,this.mapX,this.mapY);
 					ctx.strokeStyle = "red";
 					ctx.lineWidth = 0.5;
 					//ctx.rect(this.tiles[x][y].x+this.mapX,this.tiles[x][y].y+this.mapY,32,32);	
 				}
-			}
+			}*/
+			
+			ctx.drawImage((this.mapImg),this.mapX,this.mapY);
+			
 			ctx.stroke();
 			this.trees.forEach(function(value,index,arr){
 				arr[index].render(ctx);

@@ -95,7 +95,9 @@ class Character{
                 //gameDates.mouseY-this.mapY-this.height*0.7);
             }
         }
-        if(this.state == "walking"){    
+        if(this.state == "walking"){  
+            
+              
             this.movingTime++;
             if(this.movingTime>100)this.movingTime=0;
             this.animationTime++;
