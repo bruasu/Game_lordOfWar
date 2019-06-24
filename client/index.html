@@ -30,21 +30,8 @@
                         <div class="card">
                             <h4 class="card-title text-center mt-4">Multiplayer</h4>
                             <div class="card-body">
-                                <table class="table">
-                                <tr>
-                                    <th>Room</th>
-                                    <th>count</th>
-                                    <th>status</th>
-                                    <th></th>
-                                </tr>
-                                <div id="roomsList">
-                                    <tr >
-                                        <td>room 01</td>
-                                        <td>1/4</td>
-                                        <td>Open</td>
-                                        <td class="btn btn-primary btn-sm">Play</td>
-                                    </tr>
-                                </div>
+                            <table class="table" id="roomsList">
+                                <th>no rooms at this time</th>
                             </table>
                         </div>
                     </div>
@@ -60,7 +47,7 @@
                 <div class="col-12">
                         <div class="card mt-5">
                                 <div class="card-title">
-                                    <h4 class="text-center mt-3">Cretion od the Room</h4>
+                                    <h4 class="text-center mt-3">Cretion of the Room</h4>
                                 </div>
                                 <div class="car-body">
                                     <table class="table">
@@ -70,9 +57,9 @@
                                             <th>Max User</th>
                                         </tr>
                                         <tr>
-                                            <td >Bruno</td>
+                                            <td id="nameUserTableCreationRoom">Undefined</td>
                                             <td><input id="nameRoom" type="text"></td>
-                                            <td><input id="countUserRoom" type="number" max="4" min="2" value="2"></td>
+                                            <td><input id="maxUsersRoom" type="number" max="4" min="2" value="2"></td>
                                         </tr>
                                     </table>
                                 </div>
@@ -84,9 +71,11 @@
             </div>
         </div>
     </div>
+    <script src="js/socket.io.js"></script>
     <script src="js/main.js"></script>
+    <script src="js/io.js"></script>
 
-    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
 </body>

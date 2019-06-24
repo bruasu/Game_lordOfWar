@@ -12,7 +12,8 @@ const main = {
               // window.location = 'src/com.asubrothers.Game/index.html';
               main.name = username.value; 
               Rooms.classList.remove('d-none');   
-              login.classList.add('d-none');    
+              login.classList.add('d-none');  
+              nameUserTableCreationRoom.innerText = main.name;  
             }else{
               
               alertUserExists.classList.remove("hidden")
@@ -24,18 +25,13 @@ const main = {
 
         newRoom.addEventListener('click', () => {
           main.ayax(main.pathUrl+'/api/rooms', (res) => {
-            console.log(res);
 
-            const html = '';
-
-            for(var i = 0; i < res.length; i++){
-
-            }
+            main.updateRooms();            
 
           }, 'POST', JSON.stringify({
             "name": main.name,
             "nameRoom": nameRoom.value,
-            'count': countUserRoom.value
+            'maxUsersRoom': maxUsersRoom.value
           }));
         });
 
@@ -56,6 +52,18 @@ const main = {
         xhttp.open(method, path, true);
         xhttp.setRequestHeader("content-type", "application/json");
         xhttp.send(date);
+    },
+    updateRooms(){
+      main.ayax(main.pathUrl+'/api/rooms', (res) => {
+        let html = "<tr><th>Room</th><th>count</th><th>status</th><th></th></tr>";
+        console.log(res);
+            for(var i = 0; i < res.length; i++){
+              let quantityUser = res[i].quantityUserRoom+"/"+res[i].maxUsersRoom;
+              let tr = "<tr><td>"+res[i].nameRoom+"</td><td>"+quantityUser+"</td><td>"+res[i].status+"</td><td class='btn btn-primary btn-sm'>Play</td></tr>";
+              html += tr;
+            }
+        roomsList.innerHTML = html;
+      }, 'GET');
     }
 }
 

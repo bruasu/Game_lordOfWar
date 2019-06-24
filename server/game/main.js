@@ -16,7 +16,13 @@ const main = {
             //envio los datos a todos menos a mi mismo
         /*     socket.on('chat:typing', (data)=>{
                 socket.broadcast.emit('chat:typing',data);
-            }); */
+            }); */            
+            socket.broadcast.emit('listRooms:server',{
+                listRoomm: true
+            });
+        });
+        io.on('roomsEventupdate', (socket) =>{
+            console.log('rooms new connecton');
         });
     },
     checkUser: (name) => {
