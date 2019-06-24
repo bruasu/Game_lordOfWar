@@ -5,18 +5,20 @@ const main = {
         main.login();
     },
     login: () => {
+        //start aplication
+        checkUserSessionStorage();        
+
         send.addEventListener('click', function(){
           main.ayax(main.pathUrl+'/api/login/' + username.value,(res) => {
             
             if(res.authentication == 'true'){
               // window.location = 'src/com.asubrothers.Game/index.html';
-              main.name = username.value; 
-              Rooms.classList.remove('d-none');   
-              login.classList.add('d-none');  
-              nameUserTableCreationRoom.innerText = main.name;  
+              sessionStorage.setItem('name', res.name);
+              main.name = res.name;
+              hiddenLogin();
             }else{
               
-              alertUserExists.classList.remove("hidden")
+              alertUserExists.classList.remove("hidden");
               let html = "<h4>Usuario en Uso </h4><h5>Intente con otro nombre de Usuario</h5>";  
               alertUserExists.innerHTML = html;
             }
@@ -39,6 +41,37 @@ const main = {
         username.value = '';
         alertUserExists.classList.add('hidden');
       });
+
+      logOff.addEventListener('click', function(){
+        closeSession();
+      });
+
+      function checkUserSessionStorage(){
+        if(sessionStorage.getItem('name') != null){          
+          hiddenLogin();
+        }else{
+          Rooms.classList.add('d-none'); 
+          header.classList.add('d-none');  
+          login.classList.remove('d-none'); 
+        }
+      };
+
+      function hiddenLogin(){
+        Rooms.classList.remove('d-none'); 
+        header.classList.remove('d-none');  
+        login.classList.add('d-none');  
+        nameUserTableCreationRoom.innerText = sessionStorage.getItem('name');  
+        socket.start();
+      }
+      function closeSession(){
+        main.ayax(main.pathUrl+'/api/rooms/delete/'+main.name, (res) => {
+          console.log(res);
+          
+        }, 'GET');
+
+        sessionStorage.removeItem('name');
+        checkUserSessionStorage();
+      }
     },
     ayax: (path, fun ,method = "GET", date = null) => {
 

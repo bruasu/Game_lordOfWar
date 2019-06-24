@@ -22,6 +22,20 @@ const roomsRouter = {
         app.get('/api/rooms', (req, res) => {
             res.json(main.rooms);
         });
+        app.get('/api/rooms/delete/:name', (req, res) =>{
+            let name = req.params.name;
+            let response = main.deleteUser(name);
+            
+            if(response){
+                res.json({
+                    msj: true
+                });
+            }else{
+                res.json({
+                    msj: false
+                });
+            }
+        });
     }
 };
 

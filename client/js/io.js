@@ -1,15 +1,11 @@
-const socket = io('http://localhost:3030');
+const socket = {
+   start(){
+    let socket = io('http://localhost:3000/roomsInfo');
+    console.log(socket);
 
+    data = {
+        idSocket: socket.id
+    }
+   }
 
-//socket.emit('chat:message',datos); 
-
-socket.on('chat:server', (data)=>{
-    console.log(data);
-});
-socket.on('listRooms:server', (data) =>{
-    console.log(data);
-});
-socket.on('roomsEventupdate', (data)=>{
-    console.log('rooms', data);
-    
-})
+}

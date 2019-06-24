@@ -8,7 +8,8 @@ const loginRouter = {
             if(responseCheck){
                 main.users.push(name);
                 res.json({
-                    "authentication": "true"
+                    "authentication": "true",
+                    "name": name
                 });
             }else{
                 res.json({

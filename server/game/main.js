@@ -1,29 +1,21 @@
 const main = {
     users: new Array(),
     rooms: new Array(),
+    socketUsers: {},
     start: () =>{
 
     },
     socket: (io) => {
-        io.on('connection',(socket) => {
-            console.log('new conection', socket.id);
-    
-            socket.on('chat:server', (data)=>{
-                //io.sockets.emit('chat:server',data);
-                // socket.broadcast.emit('chat:server',data); // send all but not this
-                console.log(data);
+        const roomsInformation = io
+            .of('roomsInfo')
+            .on('connection', (socket) => {
+                console.log('new user connect: '+ socket.id);
+
+                socket.on('disconnect', function(){
+                    console.log('disconnect user id: '+ socket.id);
+                    
+                });
             });
-            //envio los datos a todos menos a mi mismo
-        /*     socket.on('chat:typing', (data)=>{
-                socket.broadcast.emit('chat:typing',data);
-            }); */            
-            socket.broadcast.emit('listRooms:server',{
-                listRoomm: true
-            });
-        });
-        io.on('roomsEventupdate', (socket) =>{
-            console.log('rooms new connecton');
-        });
     },
     checkUser: (name) => {
         let result = false;
@@ -40,6 +32,17 @@ const main = {
             return result;
         }else{            
             return true;
+        }
+    },
+    deleteUser(name){
+        if(name){
+            for (let i = 0; i < main.users.length; i++) {
+                if(name == main.users[i]){
+                    main.users.splice(i,1);
+                    return true;
+                }             
+            }
+            return false;
         }
     }
 
