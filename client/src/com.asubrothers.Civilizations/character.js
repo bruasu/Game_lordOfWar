@@ -38,6 +38,7 @@ class Character{
         this.civilization=civilization;
         this.tipe=tipe;
         this.img = new Image();
+        this.movementType = "solitary"; //solitary or in group
         let i = 1;
         if(civilization=="charrua")i=0;
         if(civilization=="guarani")i=3;
@@ -81,6 +82,9 @@ class Character{
                 64,64,
                 this.x+this.mapX,this.y+this.mapY,this.width,this.height);
         }
+        ctx.fillStyle="black";
+        //ctx.fillText(this.id,this.x+this.mapX+25,this.y+this.mapY);
+        
     }
     moveTo(x,y){
         this.state = "walking";

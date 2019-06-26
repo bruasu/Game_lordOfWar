@@ -85,15 +85,16 @@ class Map{
 		this.const = new Construction(100,100,2,data.img,this.mapX,this.mapY);
 		this.point = new ConstructionPoint(200,200,0,data.img_icon1,this.mapX,this.mapY);
 		this.mapImg = new Image(500,500);
-		//this.chara = new Character(300,300,this.mapX,this.mapY,0,"charrua",0);
-		console.log(gameDates)
+		this.charactersFormation = [];
+		this.charactersFormationGroupsIds = [];
+		this.lastCharacterInMovementGroup = -1;
 		this.characters = [
 		new Character(300,300,this.mapX,this.mapY,0,"charrua",0,this.player_username,this.player_id),
-		new Character(350,300,this.mapX,this.mapY,0,"charrua",0,this.player_username,this.player_id),
-		new Character(400,300,this.mapX,this.mapY,0,"charrua",0,this.player_username,this.player_id),
-		new Character(450,300,this.mapX,this.mapY,0,"charrua",0,this.player_username,this.player_id),
-		new Character(500,300,this.mapX,this.mapY,0,"charrua",0,this.player_username,this.player_id),
-		new Character(550,300,this.mapX,this.mapY,0,"charrua",0,this.player_username,this.player_id)];
+		new Character(350,300,this.mapX,this.mapY,1,"charrua",0,this.player_username,this.player_id),
+		new Character(400,300,this.mapX,this.mapY,2,"charrua",0,this.player_username,this.player_id),
+		new Character(450,300,this.mapX,this.mapY,3,"charrua",0,this.player_username,this.player_id),
+		new Character(500,300,this.mapX,this.mapY,4,"charrua",0,this.player_username,this.player_id),
+		new Character(550,300,this.mapX,this.mapY,5,"charrua",0,this.player_username,this.player_id)];
 		this.angleCorrection = 1;
 		readTextFile("../com.asubrothers.Maps/prototype1_2players.txt",function(txt){
 		
@@ -185,32 +186,31 @@ class Map{
 		}
 	}
 	addCharacter(x,y,civilization,tipe){
-
-		this.characters.push(new Character(x,y,this.mapX,this.mapY,0,civilization,tipe,this.player_username,this.player_id));
+		let id=0;
+		for(let i=0;i<this.characters.length;i++){
+			if(this.characters[i].player_username==gameDates.player_username&&this.characters[i].player_id==gameDates.player_id){
+				id++;
+			}
+		}
+		this.characters.push(new Character(x,y,this.mapX,this.mapY,id,civilization,tipe,this.player_username,this.player_id));
 		let i = this.characters.length-1;
 		this.characters[i].moveTo(this.characters[i].x,this.characters[i].y+Character.getWidth()/2);
 		this.angleCorrection = -1;
 	}
 	render(ctx){
 		if(this.allLoaded){
-			/*for(let x = 0;x<this.tiles.length;x++){
-				for(let y = 0;y<this.tiles[0].length;y++){
-					//this.tiles[x][y].render(ctx,this.mapX,this.mapY);
-					ctx.strokeStyle = "red";
-					ctx.lineWidth = 0.5;
-					//ctx.rect(this.tiles[x][y].x+this.mapX,this.tiles[x][y].y+this.mapY,32,32);	
-				}
-			}*/
-			
 			ctx.drawImage((this.mapImg),this.mapX,this.mapY);
-			
-			ctx.stroke();
 			this.trees.forEach(function(value,index,arr){
 				arr[index].render(ctx);
 			});
 			this.const.render(ctx);
 			this.point.render(ctx);
-			//this.chara.render(ctx);
+			for(let i=0;i<this.charactersFormation.length;i++){
+				ctx.beginPath();
+				ctx.strokeStyle="red";
+				//ctx.rect(this.charactersFormation[i][0]+this.mapX,this.charactersFormation[i][1]+this.mapY,15,15)
+				ctx.stroke();
+			}
 			for(let i=0;i<this.characters.length;i++){
 				this.characters[i].renderSelection(ctx);
 			}
@@ -338,29 +338,98 @@ class Map{
 						this.characters[k].moveTo(gameDates.mouseX-this.mapX-this.characters[k].width*0.6,gameDates.mouseY-this.mapY-this.characters[k].height*0.7);
 					}
 				}else if(numberOfSelected>1){//if there are many selected characters
+					this.charactersFormation=[];
+					let charactersIds = [];
 					for(let i=0;i<this.characters.length;i++){
 						if(this.characters[i].player_username==gameDates.player_username&&this.characters[i].player_id==gameDates.player_id&&
 							this.characters[k].player_username==gameDates.player_username&&this.characters[k].player_id==gameDates.player_id){
 							if(this.characters[i].isSelected){
-								let deltaX = Math.getDistance(gameDates.mouseX-this.mapX-this.characters[k].width*0.6,0,-this.characters[k].x+this.mapX,0);
-								let deltaY = Math.getDistance(0,gameDates.mouseY-this.mapY-this.characters[k].height*0.7,0,this.characters[k].y+this.mapY);
+								charactersIds.push(i);
+								this.characters[i].movementType="group";
+								k = charactersIds[0];
+								let player_x = this.characters[k].x+this.mapX;
+								let player_y = this.characters[k].y+this.mapY;
+								let playerGoTo_x = gameDates.mouseX-this.mapX-this.characters[k].width*0.6;
+								let playerGoTo_y = gameDates.mouseY-this.mapY-this.characters[k].height*0.7;
+								let deltaX = Math.getDistance(playerGoTo_x,0,player_x,0);
+								let deltaY = Math.getDistance(0,playerGoTo_y,0,player_y);
+								let direction = "";
 								let angle = Math.atan2(deltaY,deltaX);
-								if(this.characters[i].direction==CharacterDirection.left||this.characters[k].direction==CharacterDirection.right){
+								if(playerGoTo_x>player_x-this.mapX){
+									if(deltaX>deltaY){direction=CharacterDirection.right;}
+								}
+								if(playerGoTo_x<player_x-this.mapX){
+									if(deltaX>deltaY){direction=CharacterDirection.left;}
+								}
+								if(playerGoTo_y>player_y-this.mapY){
+									if(deltaY>deltaX){direction=CharacterDirection.down;}
+								}
+								if(playerGoTo_y<player_y-this.mapY){
+									if(deltaY>deltaX){direction=CharacterDirection.up;}
+								}
+								let max = 4;
+								if(direction==CharacterDirection.left||this.characters[k].direction==CharacterDirection.right){
 									angle+=Math.PI/2;
 								}
 								let l=k==1?1:0;
-								this.characters[i].moveTo(gameDates.mouseX-this.mapX-this.characters[k].width*0.6+(i-k+l)*Math.cos(angle)*(Character.getWidth()/2),
-									gameDates.mouseY-this.mapY-this.characters[k].height*0.7+(i-k+l)*Math.sin(angle)*(Character.getWidth()/2));
+								let adjX = 0;
+								let adjY = 0;
+								let u = 0;
+								playerGoTo_x=gameDates.mouseX-this.mapX-this.characters[0].width*0.6+(charactersIds.length-1)*Math.cos(angle)*(Character.getWidth()*0.5);
+								playerGoTo_y=gameDates.mouseY-this.mapY-this.characters[0].height*0.7+(charactersIds.length-1)*Math.sin(angle)*(Character.getWidth()*0.5);
+								for(let f=0;f<numberOfSelected/max;f++){
+									if(charactersIds.length-1>=f*max&&charactersIds.length-1>max-1){
+										playerGoTo_x=this.characters[charactersIds[charactersIds.length-1-max]].goTo[0]+Math.cos(angle-Math.PI/2)*(Character.getWidth()/2);
+										playerGoTo_y=this.characters[charactersIds[charactersIds.length-1-max]].goTo[1]+Math.sin(angle-Math.PI/2)*(Character.getWidth()/2);
+									}
+								}
+								this.charactersFormation.push([
+									playerGoTo_x+25,
+									playerGoTo_y+50+adjY
+								]);
+								this.characters[i].moveTo(
+									playerGoTo_x,
+									playerGoTo_y
+								);
 							}
 						}
 						
 					}
+					this.charactersFormationGroupsIds.push(charactersIds);
+					this.lastCharacterInMovementGroup=charactersIds[charactersIds.length-1];
 				}
 			}
+			//change group status to solitary in group formations when they stop moving
+			if(this.lastCharacterInMovementGroup!=-1){
+				for(let i=0;i<this.characters.length;i++){
+					if(this.characters[i].player_username==gameDates.player_username&&this.characters[i].player_id==gameDates.player_id){
+						if(this.characters[i].id==this.lastCharacterInMovementGroup){
+							for(let j=0;j<this.charactersFormationGroupsIds.length;j++){
+								for(let k=0;k<this.charactersFormationGroupsIds[j].length;k++){
+									if(this.charactersFormationGroupsIds[j][k]==i){
+										if(this.characters[i].state=="still"){
+											for(let h=0;h<this.charactersFormationGroupsIds[j].length;h++){
+												for(let p=0;p<this.characters.length;p++){
+													if(this.characters[p].id==this.charactersFormationGroupsIds[j][h]){
+														this.characters[p].movementType="solitary";
+													}
+												}
+											}
+											this.lastCharacterInMovementGroup=-1;
+										}
+									}
+								}
+							}
+							
+						}
+					}
+				}
+			}
+			
 			//maintain separation between characters
 			for(let i=0;i<this.characters.length;i++){
 				if(this.characters[i].player_username==gameDates.player_username&&this.characters[i].player_id==gameDates.player_id){
-					if(this.characters[i].state=="walking"){
+					if(this.characters[i].state=="walking"&&this.characters[i].movementType=="solitary"){
 						
 						for(let j=0;j<this.characters.length;j++){
 							if(this.characters[j].player_username==gameDates.player_username&&this.characters[j].player_id==gameDates.player_id){
